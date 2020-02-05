@@ -35,7 +35,7 @@ void listening_stopped_handler(void* param)
 
 void start_listening()
 {
-    bc_led_set_mode(&led, BC_LED_MODE_ON);
+    // bc_led_set_mode(&led, BC_LED_MODE_ON);
 
     int listening_interval_seconds = INITIAL_LISTEN_INTERVAL/1000;
 

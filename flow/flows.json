@@ -1,1 +1,90 @@
-[{"id":"181706fa.6b8699","type":"function","z":"2c41a2bd.aa36ae","name":"URL","func":"\tmsg.payload = \"\\\"http://blokko.blockchainadvies.nu/receive-order.html?order=\" + msg.payload + \"\\\"\";\n\treturn msg;","outputs":1,"noerr":0,"x":270,"y":180,"wires":[["a32ed6ca.134d98"]]}]
+[
+    {
+        "id": "5c72261e.4368b8",
+        "type": "mqtt in",
+        "z": "23f588e2.5600e8",
+        "name": "Container 0",
+        "topic": "order/0",
+        "qos": "2",
+        "broker": "7d0e77c.3374a88",
+        "x": 110,
+        "y": 680,
+        "wires": [
+            [
+                "7dce2771.9c9148"
+            ]
+        ]
+    },
+    {
+        "id": "a3ab478e.3d8888",
+        "type": "mqtt out",
+        "z": "23f588e2.5600e8",
+        "name": "LCD 0",
+        "topic": "node/lcd-thermostat:0/qr/-/chng/code",
+        "qos": "",
+        "retain": "",
+        "broker": "29fba84a.b2af58",
+        "x": 410,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "7dce2771.9c9148",
+        "type": "function",
+        "z": "23f588e2.5600e8",
+        "name": "URL",
+        "func": "\t// msg.payload = \"\\\"http://blokko.blockchainadvies.nu/receive-order.html?order=\" + msg.payload + \"\\\"\";\n\treturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 270,
+        "y": 680,
+        "wires": [
+            [
+                "a3ab478e.3d8888"
+            ]
+        ]
+    },
+    {
+        "id": "7d0e77c.3374a88",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "",
+        "broker": "http://broker.hivemq.com",
+        "port": "8000",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": false,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "order",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "29fba84a.b2af58",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "SMARTYS-BC-CL-01",
+        "broker": "127.0.0.1",
+        "port": "1883",
+        "clientid": "SMARTYS-BC-CL-01",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "thermometer/0:1/temperature",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    }
+]
