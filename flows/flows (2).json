@@ -1,0 +1,1 @@
+[{"id":"181706fa.6b8699","type":"function","z":"2c41a2bd.aa36ae","name":"URL","func":"\tmsg.payload = \"\\\"http://blokko.blockchainadvies.nu/receive-order.html?order=\" + msg.payload + \"\\\"\";\n\treturn msg;","outputs":1,"noerr":0,"x":270,"y":180,"wires":[["a32ed6ca.134d98"]]}]
