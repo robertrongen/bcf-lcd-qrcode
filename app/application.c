@@ -20,66 +20,31 @@ void qrcode_project(char *project_name);
 // QR code variables
 char *orderIdUrl="http://blokko.blockchainadvies.nu/receive-order.html?order=1";
 
-// Listen to MQTT messages
-// How long should radio listen for messages after boot or a button press
-#define INITIAL_LISTEN_INTERVAL (1 * 60 * 1000)
-
-bc_scheduler_task_id_t listening_stopped_task_id;
-
-void listening_stopped_handler(void* param) 
-{
-    bc_log_info("Listening for usage configuration stopped.");
-
-    bc_led_set_mode(&led, BC_LED_MODE_OFF);
-}
-
-void start_listening()
-{
-    // bc_led_set_mode(&led, BC_LED_MODE_ON);
-
-    int listening_interval_seconds = INITIAL_LISTEN_INTERVAL/1000;
-
-    bc_radio_listen(INITIAL_LISTEN_INTERVAL);
-    bc_radio_pub_int("core/-/listening-timeout", &listening_interval_seconds);
-
-    bc_log_info("Waiting for counter update for next %i seconds...", listening_interval_seconds);
-
-    bc_scheduler_plan_from_now(listening_stopped_task_id, INITIAL_LISTEN_INTERVAL);
-}
-
-void button_event_handler(bc_button_t *self, bc_button_event_t event, void *event_param)
-{
-    if (event == BC_BUTTON_EVENT_PRESS)
-    {
-        start_listening();
-    }
-}
-
-
 // Subscribe to MQTT message changes
+void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *param);
+
 static const bc_radio_sub_t subs[] = {
     {"qr/-/chng/code", BC_RADIO_SUB_PT_STRING, bc_change_qr_value, NULL}
 };
 // bc_radio_set_subs(subs, sizeof(subs)/sizeof(subs[0]));
 
-
 void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *param)
 {
-    bc_log_info("bc_change_qr_value triggered.");
+    // bc_log_info("bc_change_qr_value triggered.");
+    bc_led_set_mode(&led, BC_LED_MODE_ON);
 
-    // orderIdUrl = *(char*)value; // compile warning "makes pointer from integer without a cast"
-    // orderIdUrl = (char*)value;
-    orderIdUrl = value;
+    // char *newUrl = *(char*)value; // compile warning "makes pointer from integer without a cast"
+    // char newUrl = value;
+    // char *newUrl = (char*)value;
+    char *newUrl = (char*)value;
 
-    bc_log_info("New URL set to %s.", orderIdUrl);
+    // bc_log_info("New URL set to %s.", newUrl);
 
-    qrcode_project(orderIdUrl);
+    qrcode_project(newUrl);
 
-    bc_scheduler_plan_now(500);
+    // bc_scheduler_plan_now(500);
 
 }
-
-
 
 
 static void print_qr(const uint8_t qrcode[])
@@ -139,20 +104,23 @@ void application_init(void)
     bc_log_info("application_init started");
 
     // Initialize Radio
-    bc_radio_init(BC_RADIO_MODE_NODE_SLEEPING);
-    bc_radio_set_subs((bc_radio_sub_t *) subs, sizeof(subs)/sizeof(bc_radio_sub_t));
-    // bc_radio_set_subs(subs, sizeof(subs)/sizeof(subs[0]));
+    // bc_radio_init(BC_RADIO_MODE_NODE_SLEEPING);
+    bc_radio_init(BC_RADIO_MODE_NODE_LISTENING); 
     // bc_radio_set_rx_timeout_for_sleeping_node(250);
+    bc_radio_set_rx_timeout_for_sleeping_node(2000);
+    // bc_radio_set_subs(subs, sizeof(subs)/sizeof(subs[0]));
+    bc_radio_set_subs((bc_radio_sub_t *) subs, sizeof(subs)/sizeof(bc_radio_sub_t));
+    // bc_radio_pairing_request(FIRMWARE, VERSION);
 
     bc_log_init(BC_LOG_LEVEL_DUMP, BC_LOG_TIMESTAMP_ABS);
 
     // Initialize LED
     bc_led_init(&led, BC_GPIO_LED, false, false);
-    bc_led_set_mode(&led, BC_LED_MODE_ON);
+    // bc_led_set_mode(&led, BC_LED_MODE_ON);
 
     // Initialize button
-    bc_button_init(&button, BC_GPIO_BUTTON, BC_GPIO_PULL_DOWN, false);
-    bc_button_set_event_handler(&button, button_event_handler, NULL);
+    // bc_button_init(&button, BC_GPIO_BUTTON, BC_GPIO_PULL_DOWN, false);
+    // bc_button_set_event_handler(&button, button_event_handler, NULL);
   
     // Initialize LCD
     bc_module_lcd_init();
@@ -165,11 +133,5 @@ void application_init(void)
 */
     // Initialize project
     qrcode_project(orderIdUrl);
-
-    // Register task to notify end of listening
-    listening_stopped_task_id = bc_scheduler_register(listening_stopped_handler, NULL, BC_TICK_INFINITY);
-
-    // Start listening for MQTT updates
-    start_listening();
-
 }
+
