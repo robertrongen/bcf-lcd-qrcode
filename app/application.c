@@ -5,6 +5,7 @@
 
 // Defaults
 // #define BATTERY_UPDATE_INTERVAL (60 * 60 * 1000)
+#define SERVICE_INTERVAL_INTERVAL (60 * 60 * 1000)
 
 // LED instance
 bc_led_t led;
@@ -32,6 +33,7 @@ void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *para
 {
     // bc_log_info("bc_change_qr_value triggered.");
     bc_led_set_mode(&led, BC_LED_MODE_ON);
+    qrcode_project("https://2bsmart.eu");
 
     // char *newUrl = *(char*)value; // compile warning "makes pointer from integer without a cast"
     // char newUrl = value;
@@ -107,7 +109,7 @@ void application_init(void)
     // bc_radio_init(BC_RADIO_MODE_NODE_SLEEPING);
     bc_radio_init(BC_RADIO_MODE_NODE_LISTENING); 
     // bc_radio_set_rx_timeout_for_sleeping_node(250);
-    bc_radio_set_rx_timeout_for_sleeping_node(2000);
+    // bc_radio_set_rx_timeout_for_sleeping_node(2000);
     // bc_radio_set_subs(subs, sizeof(subs)/sizeof(subs[0]));
     bc_radio_set_subs((bc_radio_sub_t *) subs, sizeof(subs)/sizeof(bc_radio_sub_t));
     // bc_radio_pairing_request(FIRMWARE, VERSION);
@@ -116,6 +118,7 @@ void application_init(void)
 
     // Initialize LED
     bc_led_init(&led, BC_GPIO_LED, false, false);
+    bc_led_set_mode(&led, BC_LED_MODE_OFF);
     // bc_led_set_mode(&led, BC_LED_MODE_ON);
 
     // Initialize button
