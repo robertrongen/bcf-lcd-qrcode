@@ -31,16 +31,16 @@ static const bc_radio_sub_t subs[] = {
 
 void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *param)
 {
-    // bc_log_info("bc_change_qr_value triggered.");
-    bc_led_set_mode(&led, BC_LED_MODE_ON);
-    qrcode_project("https://2bsmart.eu");
+    bc_log_info("bc_change_qr_value triggered.");
+    // bc_led_set_mode(&led, BC_LED_MODE_ON);
+    // qrcode_project("https://2bsmart.eu");
 
     // char *newUrl = *(char*)value; // compile warning "makes pointer from integer without a cast"
     // char newUrl = value;
     // char *newUrl = (char*)value;
     char *newUrl = (char*)value;
 
-    // bc_log_info("New URL set to %s.", newUrl);
+    bc_log_info("New URL set to %s.", newUrl);
 
     qrcode_project(newUrl);
 
