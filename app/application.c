@@ -5,10 +5,13 @@
 
 // Defaults
 // #define BATTERY_UPDATE_INTERVAL (60 * 60 * 1000)
-#define SERVICE_INTERVAL_INTERVAL (60 * 60 * 1000)
+// #define SERVICE_INTERVAL_INTERVAL (60 * 60 * 1000)
 
 // LED instance
 bc_led_t led;
+bc_led_t led_lcd_red;
+bc_led_t led_lcd_blue;
+bc_led_t led_lcd_green;
 
 // Button instance
 bc_button_t button;
@@ -16,14 +19,10 @@ bc_button_t button;
 // GFX instance
 bc_gfx_t *gfx;
 
-void qrcode_project(char *project_name);
-
 // QR code variables
 char *orderIdUrl="http://blokko.blockchainadvies.nu/receive-order.html?order=1";
 
 // Subscribe to MQTT message changes
-void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *param);
-
 static const bc_radio_sub_t subs[] = {
     {"qr/-/chng/code", BC_RADIO_SUB_PT_STRING, bc_change_qr_value, NULL}
 };
@@ -32,8 +31,7 @@ static const bc_radio_sub_t subs[] = {
 void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *param)
 {
     bc_log_info("bc_change_qr_value triggered.");
-    // bc_led_set_mode(&led, BC_LED_MODE_ON);
-    // qrcode_project("https://2bsmart.eu");
+    bc_led_pulse(&led_lcd_green, 2000);
 
     // char *newUrl = *(char*)value; // compile warning "makes pointer from integer without a cast"
     // char newUrl = value;
@@ -44,12 +42,9 @@ void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *para
 
     qrcode_project(newUrl);
 
-    // bc_scheduler_plan_now(500);
-
 }
 
-
-static void print_qr(const uint8_t qrcode[])
+void print_qr(const uint8_t qrcode[])
 {
     // Create log
     // bc_log_info("Button event handler - event: %i", event);
@@ -106,15 +101,13 @@ void application_init(void)
     bc_log_info("application_init started");
 
     // Initialize Radio
-    // bc_radio_init(BC_RADIO_MODE_NODE_SLEEPING);
     bc_radio_init(BC_RADIO_MODE_NODE_LISTENING); 
-    // bc_radio_set_rx_timeout_for_sleeping_node(250);
-    // bc_radio_set_rx_timeout_for_sleeping_node(2000);
-    // bc_radio_set_subs(subs, sizeof(subs)/sizeof(subs[0]));
     bc_radio_set_subs((bc_radio_sub_t *) subs, sizeof(subs)/sizeof(bc_radio_sub_t));
     // bc_radio_pairing_request(FIRMWARE, VERSION);
 
-    bc_log_init(BC_LOG_LEVEL_DUMP, BC_LOG_TIMESTAMP_ABS);
+    // Initialize LCD
+    bc_module_lcd_init();
+    gfx = bc_module_lcd_get_gfx();
 
     // Initialize LED
     bc_led_init(&led, BC_GPIO_LED, false, false);
@@ -125,16 +118,21 @@ void application_init(void)
     // bc_button_init(&button, BC_GPIO_BUTTON, BC_GPIO_PULL_DOWN, false);
     // bc_button_set_event_handler(&button, button_event_handler, NULL);
   
-    // Initialize LCD
-    bc_module_lcd_init();
-    gfx = bc_module_lcd_get_gfx();
+    // Initialize LED on LCD module
+    bc_led_init_virtual(&led_lcd_red, BC_MODULE_LCD_LED_RED, bc_module_lcd_get_led_driver(), true);
+    bc_led_init_virtual(&led_lcd_blue, BC_MODULE_LCD_LED_BLUE, bc_module_lcd_get_led_driver(), true);
+    bc_led_init_virtual(&led_lcd_green, BC_MODULE_LCD_LED_GREEN, bc_module_lcd_get_led_driver(), true);
 
     // Initialize battery
 /*  bc_module_battery_init();
     bc_module_battery_set_event_handler(battery_event_handler, NULL);
     bc_module_battery_set_update_interval(BATTERY_UPDATE_INTERVAL);
 */
+
     // Initialize project
     qrcode_project(orderIdUrl);
+
+    bc_led_pulse(&led_lcd_blue, 2000);
+
 }
 

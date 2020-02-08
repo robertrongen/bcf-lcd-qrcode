@@ -7,16 +7,9 @@
 
 #include <bcl.h>
 
-void qrcode_project(char *project_name);
-void get_qr_data();
 void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *param);
-
-
-typedef enum
-{
-    orderId = 0
-}bc_wifi_command_t;
-
+void print_qr(const uint8_t qrcode[]);
+void qrcode_project(char *text);
 
 
 #endif // _APPLICATION_H
