@@ -26,12 +26,12 @@ void qrcode_project(char *text);
 
 
 // QR code variables
-char *orderIdUrl="http://blokko.blockchainadvies.nu/receive-order.html?order=1";
+char *orderIdUrl="http://blokko.blockchainadvies.nu/receive-order.html";
 
 
 // subscribe table, format: topic, expect payload type, callback, user param
 static const bc_radio_sub_t subs[] = {
-    {"qr/-/chng/code", BC_RADIO_SUB_PT_STRING, bc_change_qr_value, NULL}
+    {"blokko/order/qr/0", BC_RADIO_SUB_PT_STRING, bc_change_qr_value, NULL}
 };
 
 
@@ -43,12 +43,20 @@ void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *para
 
     // char *newUrl = *(char*)value; // compile warning "makes pointer from integer without a cast"
     // char newUrl = value;
-    char *newUrl = (char*)value;
 
-    bc_log_info("New URL set to %s.", newUrl);
+    const char *url="http://blokko.blockchainadvies.nu/receive-order.html?";
+    char *orderId = (char*)value;
+    char *order_url = calloc(strlen(orderIdUrl) + strlen(url) + 1, sizeof(char));
+    strcat(order_url, url);
+    strcat(order_url, orderId);
+
+
+    // char *newUrl = (char*)value;
+
+    bc_log_info("New URL set to %s.", order_url);
     
-    orderIdUrl = newUrl;
-    qrcode_project(newUrl);
+    // orderIdUrl = order_url;
+    qrcode_project(order_url);
 
 }
 
@@ -110,7 +118,7 @@ void application_init(void)
     // Initialize Radio
     bc_radio_init(BC_RADIO_MODE_NODE_LISTENING); 
     bc_radio_set_subs((bc_radio_sub_t *) subs, sizeof(subs)/sizeof(bc_radio_sub_t));
-    // bc_radio_pairing_request(FIRMWARE, VERSION);
+    bc_radio_pairing_request("bcf-qr-code", VERSION);
 
     // Initialize LCD
     bc_module_lcd_init();
