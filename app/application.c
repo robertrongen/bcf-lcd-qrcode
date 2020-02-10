@@ -19,41 +19,47 @@ bc_button_t button;
 // GFX instance
 bc_gfx_t *gfx;
 
+
+void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *param);
+void print_qr(const uint8_t qrcode[]);
+void qrcode_project(char *text);
+
+
 // QR code variables
 char *orderIdUrl="http://blokko.blockchainadvies.nu/receive-order.html?order=1";
 
-// Subscribe to MQTT message changes
+
+// subscribe table, format: topic, expect payload type, callback, user param
 static const bc_radio_sub_t subs[] = {
     {"qr/-/chng/code", BC_RADIO_SUB_PT_STRING, bc_change_qr_value, NULL}
 };
-// bc_radio_set_subs(subs, sizeof(subs)/sizeof(subs[0]));
+
 
 void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *param)
 {
     bc_log_info("bc_change_qr_value triggered.");
-    bc_led_pulse(&led_lcd_green, 2000);
+
+    bc_led_pulse(&led_lcd_blue, 2000);
 
     // char *newUrl = *(char*)value; // compile warning "makes pointer from integer without a cast"
     // char newUrl = value;
-    // char *newUrl = (char*)value;
     char *newUrl = (char*)value;
 
     bc_log_info("New URL set to %s.", newUrl);
-
+    
+    orderIdUrl = newUrl;
     qrcode_project(newUrl);
 
 }
 
+
 void print_qr(const uint8_t qrcode[])
 {
-    // Create log
-    // bc_log_info("Button event handler - event: %i", event);
     bc_log_info("print_qr started");
 
     bc_gfx_clear(gfx);
 
     bc_gfx_set_font(gfx, &bc_font_ubuntu_13);
-    // bc_gfx_draw_string(gfx, 2, 0, (char*)str_urls[project_index], true);
     bc_gfx_draw_string(gfx, 2, 0, orderIdUrl, true);
 
     uint32_t offset_x = 15;
@@ -91,6 +97,7 @@ void qrcode_project(char *text)
 
     bc_system_pll_disable();
 }
+
 
 void application_init(void)
 {
@@ -132,7 +139,7 @@ void application_init(void)
     // Initialize project
     qrcode_project(orderIdUrl);
 
-    bc_led_pulse(&led_lcd_blue, 2000);
+    bc_led_pulse(&led_lcd_green, 2000);
 
 }
 
