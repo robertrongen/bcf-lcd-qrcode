@@ -1,11 +1,19 @@
 #include <application.h>
-
 #include "qrcodegen.h"
 
 
 // Defaults
-// #define BATTERY_UPDATE_INTERVAL (60 * 60 * 1000)
-// #define SERVICE_INTERVAL_INTERVAL (60 * 60 * 1000)
+#define SERVICE_INTERVAL_INTERVAL   (60 * 60 * 1000)
+#define BATTERY_UPDATE_INTERVAL     (60 * 60 * 1000)
+
+/*
+#define _BC_MODULE_BATTERY_CELL_VOLTAGE 1.5f
+#define _BC_MODULE_BATTERY_STANDATD_DEFAULT_LEVEL_LOW       (1.2 * 4)  // battery crossed "low voltage threshold
+#define _BC_MODULE_BATTERY_DEFAULT_DEFAULT_LEVEL_CRITICAL   (1.0 * 4)  // battery crossed "critical voltage threshold
+// BC_MODULE_BATTERY_EVENT_UPDATE - voltage measurement happened
+*/
+#define APPLICATION_TASK_ID 0
+
 
 // LED instance
 bc_led_t led;
@@ -19,14 +27,27 @@ bc_button_t button;
 // GFX instance
 bc_gfx_t *gfx;
 
+// QR code variables
+char *container_id = "0";
+char *orderIdUrl="http://blokko.blockchainadvies.nu/receive-order.html";
+char *qr_text = "";
 
 void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *param);
-void print_qr(const uint8_t qrcode[]);
-void qrcode_project(char *text);
+void print_qr(const uint8_t qrcode[], char *qr_header_text);
+void qrcode_project(char *text, char *header_text);
 
-
-// QR code variables
-char *orderIdUrl="http://blokko.blockchainadvies.nu/receive-order.html";
+void create_qr_text(const char *container, const char *order) 
+{
+    const char *container_text="Blokko CTR";
+    char *container_number = (char*)container;
+    const char *order_text=", SO: ";
+    char *order_number = (char*)order;
+    qr_text = calloc(strlen(container_text) + strlen(container_number) + strlen(order_text) + strlen(order_number) + 1, sizeof(char));
+    strcat(qr_text, container_text);
+    strcat(qr_text, container_number);
+    strcat(qr_text, order_text);
+    strcat(qr_text, order_number);
+}
 
 
 // subscribe table, format: topic, expect payload type, callback, user param
@@ -41,34 +62,29 @@ void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *para
 
     bc_led_pulse(&led_lcd_blue, 2000);
 
-    // char *newUrl = *(char*)value; // compile warning "makes pointer from integer without a cast"
-    // char newUrl = value;
-
-    const char *url="http://blokko.blockchainadvies.nu/receive-order.html?";
+   const char *url="http://blokko.blockchainadvies.nu/receive-order.html?order=";
     char *orderId = (char*)value;
     char *order_url = calloc(strlen(orderIdUrl) + strlen(url) + 1, sizeof(char));
     strcat(order_url, url);
     strcat(order_url, orderId);
 
-
-    // char *newUrl = (char*)value;
-
     bc_log_info("New URL set to %s.", order_url);
     
-    // orderIdUrl = order_url;
-    qrcode_project(order_url);
+    create_qr_text(container_id, orderId);
+
+    qrcode_project(order_url, qr_text);
 
 }
 
 
-void print_qr(const uint8_t qrcode[])
+void print_qr(const uint8_t qrcode[], char *qr_header_text)
 {
     bc_log_info("print_qr started");
 
     bc_gfx_clear(gfx);
 
     bc_gfx_set_font(gfx, &bc_font_ubuntu_13);
-    bc_gfx_draw_string(gfx, 2, 0, orderIdUrl, true);
+    bc_gfx_draw_string(gfx, 2, 0, qr_header_text, true);
 
     uint32_t offset_x = 15;
     uint32_t offset_y = 16;
@@ -90,7 +106,7 @@ void print_qr(const uint8_t qrcode[])
 
 
 // Make and print the QR Code symbol
-void qrcode_project(char *text)
+void qrcode_project(char *text, char *header_text)
 {
     bc_system_pll_enable();
 
@@ -100,10 +116,47 @@ void qrcode_project(char *text)
 
 	if (ok)
     {
-		print_qr(qrcode);
+		print_qr(qrcode, header_text);
     }
 
     bc_system_pll_disable();
+}
+
+// Button instance
+bc_button_t button;
+uint16_t button_event_count = 0;
+
+// Event handlers to publish battery voltage when either button is pressed or a battery events happens
+
+void button_event_handler(bc_button_t *self, bc_button_event_t event, void *event_param)
+{
+    (void) self;
+    (void) event_param;
+    float voltage;
+
+    if (event == BC_BUTTON_EVENT_PRESS)
+    {
+        if (bc_module_battery_get_voltage(&voltage))
+        {
+            bc_radio_pub_battery(&voltage);
+        }
+    }
+}
+
+void battery_event_handler(bc_module_battery_event_t event, void *event_param)
+{
+    (void) event_param;
+
+    float voltage;
+
+    if (event == BC_MODULE_BATTERY_EVENT_UPDATE)
+    {
+        if (bc_module_battery_get_voltage(&voltage))
+        {
+            bc_radio_pub_battery(&voltage);
+            // bc_radio_pub_string("blokko/module/voltage/0", voltage);
+        }
+    }
 }
 
 
@@ -130,8 +183,8 @@ void application_init(void)
     // bc_led_set_mode(&led, BC_LED_MODE_ON);
 
     // Initialize button
-    // bc_button_init(&button, BC_GPIO_BUTTON, BC_GPIO_PULL_DOWN, false);
-    // bc_button_set_event_handler(&button, button_event_handler, NULL);
+    bc_button_init(&button, BC_GPIO_BUTTON, BC_GPIO_PULL_DOWN, false);
+    bc_button_set_event_handler(&button, button_event_handler, NULL);
   
     // Initialize LED on LCD module
     bc_led_init_virtual(&led_lcd_red, BC_MODULE_LCD_LED_RED, bc_module_lcd_get_led_driver(), true);
@@ -139,13 +192,14 @@ void application_init(void)
     bc_led_init_virtual(&led_lcd_green, BC_MODULE_LCD_LED_GREEN, bc_module_lcd_get_led_driver(), true);
 
     // Initialize battery
-/*  bc_module_battery_init();
+    bc_module_battery_init();
     bc_module_battery_set_event_handler(battery_event_handler, NULL);
     bc_module_battery_set_update_interval(BATTERY_UPDATE_INTERVAL);
-*/
+
 
     // Initialize project
-    qrcode_project(orderIdUrl);
+    create_qr_text(container_id, "-");
+    qrcode_project(orderIdUrl, qr_text);
 
     bc_led_pulse(&led_lcd_green, 2000);
 
