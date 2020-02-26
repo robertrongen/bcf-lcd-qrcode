@@ -6,12 +6,6 @@
 #define SERVICE_INTERVAL_INTERVAL   (60 * 60 * 1000)
 #define BATTERY_UPDATE_INTERVAL     (60 * 60 * 1000)
 
-/*
-#define _BC_MODULE_BATTERY_CELL_VOLTAGE 1.5f
-#define _BC_MODULE_BATTERY_STANDATD_DEFAULT_LEVEL_LOW       (1.2 * 4)  // battery crossed "low voltage threshold
-#define _BC_MODULE_BATTERY_DEFAULT_DEFAULT_LEVEL_CRITICAL   (1.0 * 4)  // battery crossed "critical voltage threshold
-// BC_MODULE_BATTERY_EVENT_UPDATE - voltage measurement happened
-*/
 #define APPLICATION_TASK_ID 0
 
 
@@ -102,6 +96,7 @@ void print_qr(const uint8_t qrcode[], char *qr_header_text)
 		}
 	}
     bc_gfx_update(gfx);
+
 }
 
 

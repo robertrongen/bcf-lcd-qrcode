@@ -2,7 +2,7 @@
 #define _APPLICATION_H
 
 #ifndef VERSION
-#define VERSION "0.1"
+#define VERSION "0.2"
 #endif
 
 #include <bcl.h>
