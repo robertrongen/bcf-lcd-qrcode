@@ -462,7 +462,7 @@
         "z": "50651fdf.66cf8",
         "name": "Container 0",
         "topic": "blokko/order/qr/0",
-        "qos": "0",
+        "qos": "2",
         "datatype": "auto",
         "broker": "70c3dc15.e75e74",
         "x": 90,
@@ -482,7 +482,7 @@
         "qos": "",
         "retain": "",
         "broker": "29fba84a.b2af58",
-        "x": 390,
+        "x": 430,
         "y": 660,
         "wires": []
     },
@@ -513,8 +513,8 @@
         "console": false,
         "tostatus": false,
         "complete": "false",
-        "x": 410,
-        "y": 740,
+        "x": 430,
+        "y": 720,
         "wires": []
     },
     {
@@ -522,18 +522,18 @@
         "type": "inject",
         "z": "50651fdf.66cf8",
         "name": "",
-        "topic": "",
-        "payload": "2",
-        "payloadType": "num",
+        "topic": "node/bcf-qr-code:0/blokko/order/qr/0",
+        "payload": "\"2\"",
+        "payloadType": "str",
         "repeat": "",
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
-        "x": 90,
-        "y": 740,
+        "x": 250,
+        "y": 960,
         "wires": [
             [
-                "effa4976.47fb58"
+                "17a75d8c.87c1c2"
             ]
         ]
     },
@@ -542,20 +542,136 @@
         "type": "inject",
         "z": "50651fdf.66cf8",
         "name": "",
-        "topic": "",
-        "payload": "88",
-        "payloadType": "num",
+        "topic": "node/bcf-qr-code:0/blokko/order/qr/0",
+        "payload": "\"88\"",
+        "payloadType": "str",
         "repeat": "",
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
-        "x": 90,
-        "y": 780,
+        "x": 250,
+        "y": 1020,
         "wires": [
             [
-                "effa4976.47fb58"
+                "17a75d8c.87c1c2"
             ]
         ]
+    },
+    {
+        "id": "e1cfdcba.a9233",
+        "type": "mqtt in",
+        "z": "50651fdf.66cf8",
+        "name": "",
+        "topic": "node/bcf-qr-code:0/update_request",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "29fba84a.b2af58",
+        "x": 160,
+        "y": 800,
+        "wires": [
+            [
+                "3b62c259.3d8e8e"
+            ]
+        ]
+    },
+    {
+        "id": "17a75d8c.87c1c2",
+        "type": "change",
+        "z": "50651fdf.66cf8",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "orderId",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 440,
+        "y": 1000,
+        "wires": [
+            [
+                "1204475a.7aced9"
+            ]
+        ]
+    },
+    {
+        "id": "8003b8b0.7ab3d8",
+        "type": "mqtt in",
+        "z": "50651fdf.66cf8",
+        "name": "",
+        "topic": "node/bcf-qr-code:0/battery/-/voltage",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "29fba84a.b2af58",
+        "x": 160,
+        "y": 880,
+        "wires": [
+            [
+                "3b62c259.3d8e8e"
+            ]
+        ]
+    },
+    {
+        "id": "3b62c259.3d8e8e",
+        "type": "change",
+        "z": "50651fdf.66cf8",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "orderId",
+                "tot": "flow"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 440,
+        "y": 840,
+        "wires": [
+            [
+                "d205789b.c1c248",
+                "1204475a.7aced9"
+            ]
+        ]
+    },
+    {
+        "id": "d205789b.c1c248",
+        "type": "mqtt out",
+        "z": "50651fdf.66cf8",
+        "name": "",
+        "topic": "node/bcf-qr-code:0/blokko/order/qr/0",
+        "qos": "",
+        "retain": "",
+        "broker": "29fba84a.b2af58",
+        "x": 750,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "1204475a.7aced9",
+        "type": "debug",
+        "z": "50651fdf.66cf8",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 670,
+        "y": 920,
+        "wires": []
     },
     {
         "id": "70c3dc15.e75e74",

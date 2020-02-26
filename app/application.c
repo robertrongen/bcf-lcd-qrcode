@@ -195,6 +195,6 @@ void application_task()  // this task is called internallyn no need to call it
     bool parameter = true;
     bc_radio_pub_bool("update_request", &parameter); // send message "true" to MQTT to trigger return message
 
-    // increase when more nodes will be connected! Test for 10 modules with 5-30 seconds
+    // increase when more nodes will be connected! Test for 10 modules with 15-30 seconds
     bc_scheduler_plan_current_relative(15000); // wait time in milliseconds
 }
