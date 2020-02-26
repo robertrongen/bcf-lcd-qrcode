@@ -1,6 +1,7 @@
+// Hardwario support feedback: https://forum.bigclown.com/t/reconnecting-radio-dongle-results-disables-connections/553/11
+
 #include <application.h>
 #include "qrcodegen.h"
-
 
 // Defaults
 #define SERVICE_INTERVAL_INTERVAL   (60 * 60 * 1000)
@@ -24,7 +25,8 @@ bc_gfx_t *gfx;
 // QR code variables
 char *container_id = "0";
 char *orderIdUrl="http://blokko.blockchainadvies.nu/receive-order.html";
-char *qr_text = "";
+char qr_text[255];
+char order_url[255];
 
 void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *param);
 void print_qr(const uint8_t qrcode[], char *qr_header_text);
@@ -32,17 +34,8 @@ void qrcode_project(char *text, char *header_text);
 
 void create_qr_text(const char *container, const char *order) 
 {
-    const char *container_text="Blokko CTR";
-    char *container_number = (char*)container;
-    const char *order_text=", SO: ";
-    char *order_number = (char*)order;
-    qr_text = calloc(strlen(container_text) + strlen(container_number) + strlen(order_text) + strlen(order_number) + 1, sizeof(char));
-    strcat(qr_text, container_text);
-    strcat(qr_text, container_number);
-    strcat(qr_text, order_text);
-    strcat(qr_text, order_number);
+    snprintf(qr_text, sizeof(qr_text), "Blokko CTR%s, SO: %s", container, order);
 }
-
 
 // subscribe table, format: topic, expect payload type, callback, user param
 static const bc_radio_sub_t subs[] = {
@@ -54,17 +47,13 @@ void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *para
 {
     bc_log_info("bc_change_qr_value triggered.");
 
-    bc_led_pulse(&led_lcd_blue, 2000);
+    bc_led_pulse(&led_lcd_blue, 500);
 
-   const char *url="http://blokko.blockchainadvies.nu/receive-order.html?order=";
-    char *orderId = (char*)value;
-    char *order_url = calloc(strlen(orderIdUrl) + strlen(url) + 1, sizeof(char));
-    strcat(order_url, url);
-    strcat(order_url, orderId);
+    snprintf(order_url, sizeof(order_url), "http://blokko.blockchainadvies.nu/receive-order.html?order=%s", (char*)value);
 
     bc_log_info("New URL set to %s.", order_url);
     
-    create_qr_text(container_id, orderId);
+    create_qr_text(container_id, (char*)value);
 
     qrcode_project(order_url, qr_text);
 
@@ -164,7 +153,9 @@ void application_init(void)
     bc_log_info("application_init started");
 
     // Initialize Radio
+    //bc_radio_init(BC_RADIO_MODE_NODE_LISTENING); 
     bc_radio_init(BC_RADIO_MODE_NODE_SLEEPING); 
+    bc_radio_set_rx_timeout_for_sleeping_node(500); // radio will be turned on for receiving a return message, time in milliseconds
     bc_radio_set_subs((bc_radio_sub_t *) subs, sizeof(subs)/sizeof(bc_radio_sub_t));
     bc_radio_pairing_request("bcf-qr-code", VERSION);
 
@@ -196,7 +187,14 @@ void application_init(void)
     create_qr_text(container_id, "-");
     qrcode_project(orderIdUrl, qr_text);
 
-    bc_led_pulse(&led_lcd_green, 2000);
-
+    bc_led_pulse(&led_lcd_green, 1000);
 }
 
+void application_task()  // this task is called internallyn no need to call it
+{
+    bool parameter = true;
+    bc_radio_pub_bool("update_request", &parameter); // send message "true" to MQTT to trigger return message
+
+    // increase when more nodes will be connected! Test for 10 modules with 5-30 seconds
+    bc_scheduler_plan_current_relative(15000); // wait time in milliseconds
+}
