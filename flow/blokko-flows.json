@@ -463,6 +463,7 @@
         "name": "Container 0",
         "topic": "blokko/order/qr/0",
         "qos": "0",
+        "datatype": "auto",
         "broker": "70c3dc15.e75e74",
         "x": 90,
         "y": 660,
@@ -493,7 +494,7 @@
         "func": "// msg.payload = \"\\\"http://blokko.blockchainadvies.nu/receive-order.html?order=\" + msg.payload + \"\\\"\";\n// msg.payload = \"\\\"order=\" + msg.payload + \"\\\"\";\nmsg.payload = \"\\\"\" + msg.payload + \"\\\"\";\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 250,
+        "x": 270,
         "y": 660,
         "wires": [
             [
@@ -513,8 +514,48 @@
         "tostatus": false,
         "complete": "false",
         "x": 410,
-        "y": 720,
+        "y": 740,
         "wires": []
+    },
+    {
+        "id": "2f0b4ade.af9786",
+        "type": "inject",
+        "z": "50651fdf.66cf8",
+        "name": "",
+        "topic": "",
+        "payload": "2",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 90,
+        "y": 740,
+        "wires": [
+            [
+                "effa4976.47fb58"
+            ]
+        ]
+    },
+    {
+        "id": "d1efbcab.92a27",
+        "type": "inject",
+        "z": "50651fdf.66cf8",
+        "name": "",
+        "topic": "",
+        "payload": "88",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 90,
+        "y": 780,
+        "wires": [
+            [
+                "effa4976.47fb58"
+            ]
+        ]
     },
     {
         "id": "70c3dc15.e75e74",
