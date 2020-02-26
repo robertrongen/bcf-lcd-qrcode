@@ -4,7 +4,7 @@
 
 // Defaults
 #define SERVICE_INTERVAL_INTERVAL   (60 * 60 * 1000)
-#define BATTERY_UPDATE_INTERVAL     (60 * 60 * 1000)
+#define BATTERY_UPDATE_INTERVAL     (1 * 60 * 1000)
 
 #define APPLICATION_TASK_ID 0
 
@@ -164,7 +164,7 @@ void application_init(void)
     bc_log_info("application_init started");
 
     // Initialize Radio
-    bc_radio_init(BC_RADIO_MODE_NODE_LISTENING); 
+    bc_radio_init(BC_RADIO_MODE_NODE_SLEEPING); 
     bc_radio_set_subs((bc_radio_sub_t *) subs, sizeof(subs)/sizeof(bc_radio_sub_t));
     bc_radio_pairing_request("bcf-qr-code", VERSION);
 
