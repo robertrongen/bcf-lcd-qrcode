@@ -460,16 +460,16 @@
         "id": "575331de.d1f93",
         "type": "mqtt in",
         "z": "50651fdf.66cf8",
-        "name": "Container 0",
+        "name": "",
         "topic": "blokko/order/qr/0",
         "qos": "2",
         "datatype": "auto",
         "broker": "70c3dc15.e75e74",
-        "x": 90,
-        "y": 660,
+        "x": 120,
+        "y": 820,
         "wires": [
             [
-                "effa4976.47fb58"
+                "17a75d8c.87c1c2"
             ]
         ]
     },
@@ -498,24 +498,9 @@
         "y": 660,
         "wires": [
             [
-                "3b2a810.a89068",
-                "eea8949.e65b568"
+                "3b2a810.a89068"
             ]
         ]
-    },
-    {
-        "id": "eea8949.e65b568",
-        "type": "debug",
-        "z": "50651fdf.66cf8",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "x": 430,
-        "y": 720,
-        "wires": []
     },
     {
         "id": "2f0b4ade.af9786",
@@ -529,8 +514,8 @@
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
-        "x": 250,
-        "y": 960,
+        "x": 110,
+        "y": 880,
         "wires": [
             [
                 "17a75d8c.87c1c2"
@@ -549,8 +534,8 @@
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
-        "x": 250,
-        "y": 1020,
+        "x": 110,
+        "y": 940,
         "wires": [
             [
                 "17a75d8c.87c1c2"
@@ -566,8 +551,8 @@
         "qos": "2",
         "datatype": "auto",
         "broker": "29fba84a.b2af58",
-        "x": 160,
-        "y": 800,
+        "x": 200,
+        "y": 1020,
         "wires": [
             [
                 "3b62c259.3d8e8e"
@@ -593,8 +578,8 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 440,
-        "y": 1000,
+        "x": 480,
+        "y": 820,
         "wires": [
             [
                 "1204475a.7aced9"
@@ -610,8 +595,8 @@
         "qos": "2",
         "datatype": "auto",
         "broker": "29fba84a.b2af58",
-        "x": 160,
-        "y": 880,
+        "x": 200,
+        "y": 1080,
         "wires": [
             [
                 "3b62c259.3d8e8e"
@@ -637,8 +622,8 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 440,
-        "y": 840,
+        "x": 480,
+        "y": 1020,
         "wires": [
             [
                 "d205789b.c1c248",
@@ -655,8 +640,8 @@
         "qos": "",
         "retain": "",
         "broker": "29fba84a.b2af58",
-        "x": 750,
-        "y": 840,
+        "x": 770,
+        "y": 1080,
         "wires": []
     },
     {
@@ -668,9 +653,10 @@
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "false",
-        "x": 670,
-        "y": 920,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 690,
+        "y": 820,
         "wires": []
     },
     {

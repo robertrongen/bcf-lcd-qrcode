@@ -23,7 +23,7 @@ bc_button_t button;
 bc_gfx_t *gfx;
 
 // QR code variables
-char *container_id = "0";
+char *container_id = "1";
 char *orderIdUrl="http://blokko.blockchainadvies.nu/receive-order.html";
 char qr_text[255];
 char order_url[255];
@@ -34,12 +34,12 @@ void qrcode_project(char *text, char *header_text);
 
 void create_qr_text(const char *container, const char *order) 
 {
-    snprintf(qr_text, sizeof(qr_text), "Blokko CTR%s, SO: %s", container, order);
+    snprintf(qr_text, sizeof(qr_text), "Blokko CTR%s, PO: %s", container, order);
 }
 
 // subscribe table, format: topic, expect payload type, callback, user param
 static const bc_radio_sub_t subs[] = {
-    {"blokko/order/qr/0", BC_RADIO_SUB_PT_STRING, bc_change_qr_value, NULL}
+    {"blokko/order/qr/1", BC_RADIO_SUB_PT_STRING, bc_change_qr_value, NULL}
 };
 
 
@@ -47,7 +47,7 @@ void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *para
 {
     bc_log_info("bc_change_qr_value triggered.");
 
-    bc_led_pulse(&led_lcd_blue, 500);
+    bc_led_pulse(&led_lcd_blue, 250);
 
     snprintf(order_url, sizeof(order_url), "http://blokko.blockchainadvies.nu/receive-order.html?order=%s", (char*)value);
 
@@ -56,7 +56,6 @@ void bc_change_qr_value(uint64_t *id, const char *topic, void *value, void *para
     create_qr_text(container_id, (char*)value);
 
     qrcode_project(order_url, qr_text);
-
 }
 
 
@@ -85,7 +84,6 @@ void print_qr(const uint8_t qrcode[], char *qr_header_text)
 		}
 	}
     bc_gfx_update(gfx);
-
 }
 
 
@@ -123,6 +121,7 @@ void button_event_handler(bc_button_t *self, bc_button_event_t event, void *even
         if (bc_module_battery_get_voltage(&voltage))
         {
             bc_radio_pub_battery(&voltage);
+            // bc_led_pulse(&led_lcd_green, 500);
         }
     }
 }
@@ -138,7 +137,6 @@ void battery_event_handler(bc_module_battery_event_t event, void *event_param)
         if (bc_module_battery_get_voltage(&voltage))
         {
             bc_radio_pub_battery(&voltage);
-            // bc_radio_pub_string("blokko/module/voltage/0", voltage);
         }
     }
 }
@@ -196,5 +194,5 @@ void application_task()  // this task is called internallyn no need to call it
     bc_radio_pub_bool("update_request", &parameter); // send message "true" to MQTT to trigger return message
 
     // increase when more nodes will be connected! Test for 10 modules with 15-30 seconds
-    bc_scheduler_plan_current_relative(15000); // wait time in milliseconds
+    bc_scheduler_plan_current_relative(10000); // wait time in milliseconds
 }
